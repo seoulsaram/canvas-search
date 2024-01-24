@@ -6,9 +6,10 @@ import Canvas3 from './components/Canvas3';
 
 function App() {
   return (
-    <div>
+    <div style={{ display: 'flex' }}>
       {/* <Canvas/> */}
       <Canvas2 />
+
       {/* <Canvas3 /> */}
     </div>
   );

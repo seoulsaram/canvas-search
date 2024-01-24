@@ -1,13 +1,8 @@
-.canvas_container {
-  width: 100vw;
-  height: 100vh;
-  padding: 40px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+body {
+  background: gray;
 }
-
-.canvas {
-  margin: 0 auto;
+#container {
+  width: 512px;
+  height: 512px;
+  background-color: skyblue;
 }
