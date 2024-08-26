@@ -3,6 +3,7 @@ import Konva from 'konva';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import { Node } from 'konva/lib/Node';
+import { Transformer } from 'konva/lib/shapes/Transformer';
 
 const CANVAS_SIZE = 512;
 
@@ -11,11 +12,11 @@ export default function Canvas2() {
   const stageRef = useRef<Stage | null>(null);
   const layerRef = useRef<Layer | null>(null);
   const imageRef = useRef<Node | null>(null);
+  const transformerRef = useRef<Transformer | null>(null);
 
-  /* 1. Stage와 Layer를 생성 */
   const initialize = useCallback(() => {
     const stage = new Konva.Stage({
-      container: 'container', // <div id='container'></div>의 id와 연결
+      container: 'container',
       width: CANVAS_SIZE,
       height: CANVAS_SIZE,
     });
@@ -26,7 +27,6 @@ export default function Canvas2() {
     stage.add(layer);
   }, []);
 
-  /* 2. 위에서 생성한 Layer위에 이미지 객체를 올려주기. */
   const drawImage = useCallback(async () => {
     if (layerRef.current) {
       const imageObj = new Image();
@@ -42,7 +42,11 @@ export default function Canvas2() {
           height: CANVAS_SIZE,
           image: imageObj,
           id: 'imageId',
-          draggable: true, //true로 설정 시 캔버스 내에서 이미지를 여기저기 옮길 수 있다.
+          draggable: true,
+          scale: {
+            x: 0.9,
+            y: 0.9,
+          },
         };
 
         const defaultImage = new Konva.Image(imageOpt);
@@ -55,12 +59,49 @@ export default function Canvas2() {
     }
   }, []);
 
-  /* 3. DOM이 렌더 된 뒤에 실행되어야 하므로 useEffect안에서 initialize, drawImage를 순서대로 실행해준다. */
+  function addTransformer() {
+    const transformer = new Konva.Transformer({
+      anchorSize: 10,
+      flipEnabled: false,
+      borderStroke: '#3bbc55d6',
+      anchorStroke: '#3bbc55d6',
+      rotateAnchorOffset: 20,
+      rotateAnchorCursor: 'grab',
+      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      anchorStyleFunc: (anchor) => {
+        if (anchor.hasName('rotater')) {
+          anchor.fill('#3bbc55d6');
+          // @ts-ignore
+          anchor?.cornerRadius(10);
+        }
+      },
+    });
+    transformerRef.current = transformer;
+    layerRef?.current?.add(transformer);
+  }
+
+  function onFocus() {
+    if (!transformerRef.current) return;
+    transformerRef.current.nodes([imageRef.current as Node]);
+  }
+
+  function onFocusOut() {
+    if (!transformerRef.current) return;
+    transformerRef.current.nodes([]);
+  }
+
   useEffect(() => {
     if (!source) return;
     initialize();
-    drawImage();
+    drawImage().then(() => addTransformer());
   }, [initialize, drawImage]);
 
-  return <div id='container'></div>;
+  return (
+    <div
+      id='container'
+      onMouseEnter={onFocus}
+      onMouseLeave={onFocusOut}
+      onTouchStart={onFocus}
+    ></div>
+  );
 }
