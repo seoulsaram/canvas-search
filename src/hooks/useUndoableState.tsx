@@ -22,6 +22,9 @@ export default function useUndoableState<T>() {
   };
 
   const goBack = (steps = 1) => {
+    // undo를 할 때 -index가 되지 않도록 Math.max로 0과 돌아갈 step을 비교하여
+    // 더 큰 값을 선택하도록 한다.
+    // 이렇게 하면 만약 index - steps가 -1이 되어도 0으로 돌아가게 된다.
     setIndex(Math.max(0, Math.max(0, index - steps)));
   };
 

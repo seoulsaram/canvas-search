@@ -77,6 +77,7 @@ export default function Canvas2() {
           image: imageObj,
           id: 'imageId',
           draggable: true,
+          crossOrigin: 'anonymous', //=> 이거 추가
           scale: {
             x: 0.9,
             y: 0.9,
@@ -162,6 +163,24 @@ export default function Canvas2() {
     return data;
   }
 
+  function saveImage() {
+    onFocusOut();
+
+    if (stageRef.current) {
+      const imageElement = new Image();
+      const dataUrl = stageRef.current.toDataURL();
+      imageElement.onload = function () {
+        const link = document.createElement('a');
+        link.download = 'image.png';
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+      imageElement.src = dataUrl;
+    }
+  }
+
   useEffect(() => {
     if (!source) return;
     initialize();
@@ -207,6 +226,9 @@ export default function Canvas2() {
             onClick={() => goBack()}
           >
             Undo
+          </button>
+          <button className='rotate_btn save' onClick={() => saveImage()}>
+            이미지 저장
           </button>
         </div>
       </div>

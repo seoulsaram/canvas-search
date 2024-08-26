@@ -85,6 +85,11 @@ button {
   color: black;
 }
 
+.save {
+  background-color: pink;
+  color: green;
+}
+
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
