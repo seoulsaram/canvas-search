@@ -172,8 +172,6 @@ export default function Canvas2() {
     });
   }, [initialize, drawImage]);
 
-  console.log('canRedo', canRedo);
-
   return (
     <section id='canvas_container'>
       <div
