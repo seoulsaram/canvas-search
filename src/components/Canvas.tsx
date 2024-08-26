@@ -9,6 +9,7 @@ import {
   getCanvasObjectData,
   rotateAroundCenter,
 } from '../utils/image.utils';
+import useUndoableState from '../hooks/useUndoableState';
 
 const CANVAS_SIZE = 512;
 
@@ -23,6 +24,29 @@ export default function Canvas2() {
   const [data, setData] = useState<CanvasObjType | null>(null);
 
   const currentDegree = useRef(0);
+
+  const {
+    state: imageState,
+    setState: setImageState,
+    index: stateIndx,
+    lastIndex: lastStateIdx,
+    goBack,
+    goForward,
+  } = useUndoableState<CanvasObjType | null>();
+
+  useEffect(() => {
+    if (!imageRef.current) return;
+    imageRef.current.setAttrs(imageState);
+  }, [imageState]);
+
+  const saveImageState = useCallback(() => {
+    if (!imageRef.current) return;
+    const data = getCanvasObjectData(imageRef.current);
+    setImageState(data);
+  }, [setImageState]);
+
+  const canUndo = stateIndx > 0;
+  const canRedo = stateIndx < lastStateIdx;
 
   const initialize = useCallback(() => {
     const stage = new Konva.Stage({
@@ -104,6 +128,8 @@ export default function Canvas2() {
     if (imageRef.current) {
       rotateAroundCenter(imageRef.current, degree + 90);
       setDegree(degree + 90 === 360 ? 0 : degree + 90);
+
+      saveImageState();
     }
   }
 
@@ -124,14 +150,16 @@ export default function Canvas2() {
       });
 
       rotateAroundCenter(imageRef.current, currentDegree.current);
+      saveImageState();
     }
   }
 
   function getData() {
-    if (!imageRef.current) return;
+    if (!imageRef.current) return null;
     const data = getCanvasObjectData(imageRef.current);
 
     setData(data);
+    return data;
   }
 
   useEffect(() => {
@@ -140,8 +168,11 @@ export default function Canvas2() {
     drawImage().then(() => {
       addTransformer();
       centerImage();
+      saveImageState();
     });
   }, [initialize, drawImage]);
+
+  console.log('canRedo', canRedo);
 
   return (
     <section id='canvas_container'>
@@ -150,31 +181,47 @@ export default function Canvas2() {
         onMouseEnter={onFocus}
         onMouseLeave={onFocusOut}
         onTouchStart={onFocus}
+        onPointerUp={saveImageState}
       ></div>
       <div className='btn_container'>
-        <button className='rotate_btn' onClick={rotateImage}>
-          회전하기
-        </button>
-        <button className='rotate_btn center' onClick={centerImage}>
-          중앙정렬
-        </button>
-        <button className='rotate_btn data' onClick={getData}>
-          데이터 추출
-        </button>
-        <div
-          className='imageData'
-          style={{ display: !data ? 'none' : 'block' }}
-        >
-          {data &&
-            Object.entries(data).map(([key, value]) => (
-              <p key={key}>
-                {key}:
-                {typeof value === 'object'
-                  ? `x : ${value.x}, y : ${value.y}`
-                  : value}
-              </p>
-            ))}
+        <div className='control_btn'>
+          <button className='rotate_btn' onClick={rotateImage}>
+            회전하기
+          </button>
+          <button className='rotate_btn center' onClick={centerImage}>
+            중앙정렬
+          </button>
+          <button className='rotate_btn data' onClick={getData}>
+            데이터 추출
+          </button>
         </div>
+        <div className='control_btn'>
+          <button
+            className='rotate_btn redo'
+            disabled={!canRedo}
+            onClick={() => goForward()}
+          >
+            Redo
+          </button>
+          <button
+            className='rotate_btn undo'
+            disabled={!canUndo}
+            onClick={() => goBack()}
+          >
+            Undo
+          </button>
+        </div>
+      </div>
+      <div className='imageData' style={{ display: !data ? 'none' : 'block' }}>
+        {data &&
+          Object.entries(data).map(([key, value]) => (
+            <p key={key}>
+              {key}:
+              {typeof value === 'object'
+                ? `x : ${value.x}, y : ${value.y}`
+                : value}
+            </p>
+          ))}
       </div>
     </section>
   );
