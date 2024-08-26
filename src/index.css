@@ -17,6 +17,10 @@ body {
   background: skyblue;
 }
 
+button {
+  cursor: pointer;
+}
+
 #canvas_container {
   width: 100vw;
   height: 100vh;
@@ -36,6 +40,7 @@ body {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  gap: 8px;
 }
 .rotate_btn {
   background-color: rgb(89, 83, 255);
@@ -45,4 +50,13 @@ body {
   bottom: 50px;
   padding: 10px;
   font-weight: bold;
+}
+
+.center {
+  background-color: lemonchiffon;
+  color: rgb(87, 0, 128);
+}
+
+.data {
+  background-color: palevioletred;
 }

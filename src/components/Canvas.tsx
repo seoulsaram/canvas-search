@@ -4,7 +4,7 @@ import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import { Node } from 'konva/lib/Node';
 import { Transformer } from 'konva/lib/shapes/Transformer';
-import { rotateAroundCenter } from '../utils/image.utils';
+import { getCanvasObjectData, rotateAroundCenter } from '../utils/image.utils';
 
 const CANVAS_SIZE = 512;
 
@@ -16,6 +16,8 @@ export default function Canvas2() {
   const transformerRef = useRef<Transformer | null>(null);
 
   const [degree, setDegree] = useState(0);
+
+  const currentDegree = useRef(0);
 
   const initialize = useCallback(() => {
     const stage = new Konva.Stage({
@@ -100,10 +102,39 @@ export default function Canvas2() {
     }
   }
 
+  function centerImage() {
+    if (imageRef.current) {
+      const width = imageRef.current.width() * imageRef.current.scaleX();
+      const height = imageRef.current.height() * imageRef.current.scaleY();
+
+      currentDegree.current = imageRef.current.rotation();
+
+      imageRef.current.setAttrs({
+        rotation: 0,
+      });
+
+      imageRef.current.setAttrs({
+        x: (CANVAS_SIZE - width) / 2,
+        y: (CANVAS_SIZE - height) / 2,
+      });
+
+      rotateAroundCenter(imageRef.current, currentDegree.current);
+    }
+  }
+
+  function getData() {
+    if (!imageRef.current) return;
+    const data = getCanvasObjectData(imageRef.current);
+    console.log('data', data);
+  }
+
   useEffect(() => {
     if (!source) return;
     initialize();
-    drawImage().then(() => addTransformer());
+    drawImage().then(() => {
+      addTransformer();
+      centerImage();
+    });
   }, [initialize, drawImage]);
 
   return (
@@ -117,6 +148,12 @@ export default function Canvas2() {
       <div className='btn_container'>
         <button className='rotate_btn' onClick={rotateImage}>
           회전하기
+        </button>
+        <button className='rotate_btn center' onClick={centerImage}>
+          중앙정렬
+        </button>
+        <button className='rotate_btn data' onClick={getData}>
+          데이터 추출
         </button>
       </div>
     </section>
