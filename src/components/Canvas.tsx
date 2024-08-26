@@ -4,7 +4,11 @@ import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import { Node } from 'konva/lib/Node';
 import { Transformer } from 'konva/lib/shapes/Transformer';
-import { getCanvasObjectData, rotateAroundCenter } from '../utils/image.utils';
+import {
+  CanvasObjType,
+  getCanvasObjectData,
+  rotateAroundCenter,
+} from '../utils/image.utils';
 
 const CANVAS_SIZE = 512;
 
@@ -16,6 +20,7 @@ export default function Canvas2() {
   const transformerRef = useRef<Transformer | null>(null);
 
   const [degree, setDegree] = useState(0);
+  const [data, setData] = useState<CanvasObjType | null>(null);
 
   const currentDegree = useRef(0);
 
@@ -125,7 +130,8 @@ export default function Canvas2() {
   function getData() {
     if (!imageRef.current) return;
     const data = getCanvasObjectData(imageRef.current);
-    console.log('data', data);
+
+    setData(data);
   }
 
   useEffect(() => {
@@ -155,6 +161,20 @@ export default function Canvas2() {
         <button className='rotate_btn data' onClick={getData}>
           데이터 추출
         </button>
+        <div
+          className='imageData'
+          style={{ display: !data ? 'none' : 'block' }}
+        >
+          {data &&
+            Object.entries(data).map(([key, value]) => (
+              <p key={key}>
+                {key}:
+                {typeof value === 'object'
+                  ? `x : ${value.x}, y : ${value.y}`
+                  : value}
+              </p>
+            ))}
+        </div>
       </div>
     </section>
   );

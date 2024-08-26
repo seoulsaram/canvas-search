@@ -60,3 +60,11 @@ button {
 .data {
   background-color: palevioletred;
 }
+
+.imageData {
+  position: fixed;
+  border: 1px solid black;
+  padding: 12px;
+  left: 20px;
+  top: 20px;
+}

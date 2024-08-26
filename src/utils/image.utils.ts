@@ -46,7 +46,6 @@ export type CanvasObjType = {
   imgCenter: { x: number; y: number };
   scaleX: number;
   scaleY: number;
-  initial: boolean;
   width: number;
   height: number;
   rotation: number;
@@ -66,6 +65,5 @@ export function getCanvasObjectData(node: Node): CanvasObjType {
     imgCenter: center,
     scaleX: node.scaleX(),
     scaleY: node.scaleY(),
-    initial: false,
   };
 }
