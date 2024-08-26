@@ -15,13 +15,34 @@ code {
 body {
   height: 100vh;
   background: skyblue;
+}
+
+#canvas_container {
+  width: 100vw;
+  height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-
 #container {
   width: 512px;
   height: 512px;
   background-color: #ffffff;
+}
+.btn_container {
+  width: 512px;
+  height: 60px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.rotate_btn {
+  background-color: rgb(89, 83, 255);
+  color: rgb(255, 255, 255);
+  border-radius: 8px;
+  border: none;
+  bottom: 50px;
+  padding: 10px;
+  font-weight: bold;
 }

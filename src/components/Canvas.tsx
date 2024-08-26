@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Konva from 'konva';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import { Node } from 'konva/lib/Node';
 import { Transformer } from 'konva/lib/shapes/Transformer';
+import { rotateAroundCenter } from '../utils/image.utils';
 
 const CANVAS_SIZE = 512;
 
@@ -13,6 +14,8 @@ export default function Canvas2() {
   const layerRef = useRef<Layer | null>(null);
   const imageRef = useRef<Node | null>(null);
   const transformerRef = useRef<Transformer | null>(null);
+
+  const [degree, setDegree] = useState(0);
 
   const initialize = useCallback(() => {
     const stage = new Konva.Stage({
@@ -90,6 +93,13 @@ export default function Canvas2() {
     transformerRef.current.nodes([]);
   }
 
+  function rotateImage() {
+    if (imageRef.current) {
+      rotateAroundCenter(imageRef.current, degree + 90);
+      setDegree(degree + 90 === 360 ? 0 : degree + 90);
+    }
+  }
+
   useEffect(() => {
     if (!source) return;
     initialize();
@@ -97,11 +107,18 @@ export default function Canvas2() {
   }, [initialize, drawImage]);
 
   return (
-    <div
-      id='container'
-      onMouseEnter={onFocus}
-      onMouseLeave={onFocusOut}
-      onTouchStart={onFocus}
-    ></div>
+    <section id='canvas_container'>
+      <div
+        id='container'
+        onMouseEnter={onFocus}
+        onMouseLeave={onFocusOut}
+        onTouchStart={onFocus}
+      ></div>
+      <div className='btn_container'>
+        <button className='rotate_btn' onClick={rotateImage}>
+          회전하기
+        </button>
+      </div>
+    </section>
   );
 }
